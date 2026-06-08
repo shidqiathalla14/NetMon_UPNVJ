@@ -26,6 +26,7 @@
 ## Daftar Isi
 
 - [Struktur Proyek](#struktur-proyek)
+- [Alat & Teknologi](#alat--teknologi-yang-digunakan)
 - [Prinsip Desain](#prinsip-desain)
 - [Panduan Instalasi](#panduan-instalasi)
 - [Kredensial Akses](#kredensial-akses)
@@ -51,9 +52,35 @@ Netmon_Project_UPNVJ/
 │
 └── Netmon_Server/                # Backend Infrastructure (Docker)
     ├── db_data/                  # Volume persisten MariaDB (di-ignore via .gitignore)
-    ├── grafana_data/             # Volume persisten dashboard Grafana (di-ignore via .gitignore)
     └── docker-compose.yml        # Orkestrasi container (Zabbix, Grafana, MariaDB)
 ```
+
+---
+
+## 🛠️ Alat & Teknologi yang Digunakan
+
+Proyek ini dibangun menggunakan kombinasi perangkat lunak modern untuk memastikan skalabilitas, keamanan, dan performa tinggi pada pemantauan jaringan.
+
+### 1. Frontend (UI/UX)
+
+* **[React.js](https://react.dev/):** Library utama untuk membangun antarmuka pengguna berbasis komponen yang reaktif.
+* **[Vite](https://vitejs.dev/):** *Build-tool* generasi baru yang memberikan pengalaman *development* super cepat.
+* **[Node.js & NPM](https://nodejs.org/):** *Environment* untuk menjalankan JavaScript dan mengelola paket/pustaka frontend.
+* **Vanilla CSS:** Pendekatan *styling* murni menggunakan *CSS Variables* untuk mendukung tema *Light/Dark Mode* tanpa membebani sistem dengan *framework* eksternal.
+
+### 2. Backend & Infrastruktur Server
+
+* **[Docker](https://www.docker.com/):** Platform *containerization* untuk mengisolasi lingkungan *server* agar dapat berjalan konsisten di mesin manapun.
+* **[Docker Compose](https://docs.docker.com/compose/):** Alat orkestrasi untuk menjalankan Zabbix, Grafana, dan MariaDB secara bersamaan hanya dengan satu perintah.
+* **[Zabbix Server](https://www.zabbix.com/):** *Engine* utama tingkat *enterprise* yang bertugas melakukan *polling* data jaringan, status ping, dan beban perangkat via protokol SNMP.
+* **[Grafana](https://grafana.com/):** Platform analitik visual untuk menyajikan data *traffic* dari Zabbix menjadi grafik *real-time* yang interaktif.
+* **[MariaDB](https://mariadb.org/):** Sistem manajemen basis data relasional (RDBMS) tangguh yang menyimpan seluruh metrik riwayat jaringan dan konfigurasi Zabbix.
+
+### 3. Version Control & Pengembangan
+
+* **[Git](https://git-scm.com/):** Sistem pengontrol versi untuk melacak setiap riwayat perubahan kode.
+* **[GitHub](https://github.com/):** Platform *hosting* repositori utama untuk kolaborasi dan dokumentasi.
+* **[Visual Studio Code](https://code.visualstudio.com/):** *Code editor* utama yang digunakan selama proses pengembangan *frontend* dan konfigurasi *file* YAML.
 
 ---
 
