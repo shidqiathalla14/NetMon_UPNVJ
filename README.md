@@ -2,9 +2,18 @@
   <img src="https://www.upnvj.ac.id/id/files/large/89f8a80e388ced3704b091e21f510755" alt="Logo UPNVJ" width="120" />
 
   # NetMon UPNVJ
-  **Sistem Monitoring Jaringan & Infrastruktur — Network Operations Center**
+  **Sistem Monitoring Jaringan & Infrastruktur | Network Operations Center**
 
   <p>Dikembangkan untuk memantau lalu lintas jaringan, status perangkat, dan manajemen pelaporan gangguan di lingkungan kampus UPN Veteran Jakarta.</p>
+
+  ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+  ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+  ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+  ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+  ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
+  ![Zabbix](https://img.shields.io/badge/Zabbix-CC0000?style=for-the-badge&logo=zabbix&logoColor=white)
+  ![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
+  ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 </div>
 
 ---
@@ -66,7 +75,7 @@ Aset lokal berbasis WebP, integrasi Iframe Kiosk, dan arsitektur Virtual DOM dar
 
 Pastikan perangkat Anda sudah menginstal **Node.js**, **Git**, dan **Docker Desktop** sebelum memulai.
 
-### Tahap 1 — Jalankan Backend (Zabbix & Grafana)
+### Tahap 1 | Jalankan Backend (Zabbix & Grafana)
 
 ```bash
 cd Netmon_Server
@@ -75,7 +84,7 @@ docker-compose up -d
 
 > Pastikan tidak ada konflik port. Grafana berjalan di `localhost:3000`, Zabbix Web di `localhost:8080`.
 
-### Tahap 2 — Jalankan Frontend Dashboard (React)
+### Tahap 2 | Jalankan Frontend Dashboard (React)
 
 ```bash
 cd Netmon_Dashboard
@@ -109,7 +118,7 @@ Buka menu **Traffic**. Data ditampilkan dalam mode Kiosk agar tampilan Grafana t
 **Manajemen Inventaris Perangkat**
 Buka menu **Perangkat**. Administrator memiliki akses penuh (CRUD) untuk mengelola perangkat jaringan seperti Router, Switch, dan Firewall.
 
-**Deteksi Keamanan — Rogue AP**
+**Deteksi Keamanan | Rogue AP**
 Pada menu **Perangkat**, buka tab **Keamanan (Rogue AP)**. Jika terdeteksi sinyal ilegal, klik tombol peringatan untuk menyebarkan notifikasi darurat ke seluruh pengguna dashboard secara global.
 
 **Penanganan Tiket Gangguan**
@@ -119,7 +128,7 @@ Buka menu **Laporan Masuk**. Klik *Tindak Lanjuti* pada tiket berstatus **Pendin
 
 ## Panduan Maintenance
 
-Disarankan untuk melakukan pemeliharaan berikut setiap **3–6 bulan** guna menjaga performa sistem tetap optimal.
+Disarankan untuk melakukan pemeliharaan berikut setiap **3-6 bulan** guna menjaga performa sistem tetap optimal.
 
 **Pembersihan Log & Cache Docker**
 
@@ -131,4 +140,4 @@ docker system prune -a --volumes
 
 **Manajemen Penyimpanan Metrik Zabbix**
 
-Akses panel Zabbix di `localhost:8080`, lalu navigasi ke **Administration → Housekeeping**. Sesuaikan rentang hari penyimpanan **History & Trends** agar database tidak kehabisan kapasitas penyimpanan.
+Akses panel Zabbix di `localhost:8080`, lalu navigasi ke **Administration > Housekeeping**. Sesuaikan rentang hari penyimpanan **History & Trends** agar database tidak kehabisan kapasitas penyimpanan.
