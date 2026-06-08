@@ -51,6 +51,7 @@ Netmon_Project_UPNVJ/
 │
 └── Netmon_Server/                # Backend Infrastructure (Docker)
     ├── db_data/                  # Volume persisten MariaDB (di-ignore via .gitignore)
+    ├── grafana_data/             # Volume persisten dashboard Grafana (di-ignore via .gitignore)
     └── docker-compose.yml        # Orkestrasi container (Zabbix, Grafana, MariaDB)
 ```
 
