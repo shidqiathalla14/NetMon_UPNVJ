@@ -10,21 +10,46 @@ const Devices = () => {
   const [formData, setFormData] = useState({ id: '', name: '', type: 'Router', location: '', ip: '', gateway: '' });
 
   useEffect(() => {
-    const loadData = () => {
-      // Tarik Data Inventaris
-      let savedDevices = JSON.parse(localStorage.getItem('netmon_devices'));
-      if (!savedDevices || savedDevices.length === 0) {
-        savedDevices = [
-          { id: 'RT-CORE-01', type: 'Router', name: 'Core Router Utama', location: 'Rektorat', status: 'Online', ping: 4, cpu: 15, rx: 450, tx: 320, ip: '10.10.0.1', gateway: '10.10.0.254' },
-          { id: 'FW-MAIN-01', type: 'Firewall', name: 'Palo Alto FW', location: 'Rektorat', status: 'Online', ping: 2, cpu: 42, rx: 450, tx: 320, ip: '10.10.0.2', gateway: '10.10.0.254' },
-          { id: 'SW-DIST-02', type: 'Switch', name: 'Distribution SW', location: 'Gedung E (FIK)', status: 'Online', ping: 8, cpu: 22, rx: 180, tx: 90, ip: '10.10.22.1', gateway: '10.10.22.254' },
-          { id: 'AP-LIB-01', type: 'Access Point', name: 'Aruba AP Lt. 1', location: 'Perpustakaan', status: 'Online', ping: 18, cpu: 35, rx: 65, tx: 25, ip: '10.10.23.15', gateway: '10.10.23.254' }
-        ];
-        localStorage.setItem('netmon_devices', JSON.stringify(savedDevices));
-      }
-      setDevices(savedDevices);
+    // 1. FUNGSI NARIK DATA ZABBIX BUAT INVENTARIS
+    const fetchZabbixDevices = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/perangkat');
+        const data = await res.json();
 
-      // Tarik Data Rogue AP (Keamanan) - DENGAN ATRIBUT WARNING
+        // Menerjemahkan data Zabbix ke format UI Web Lu
+        const mappedDevices = data.map(host => {
+          const isOnline = host.status === "0";
+          
+          // Deteksi otomatis tipe perangkat dari namanya
+          let typeStr = 'Lainnya';
+          const hostNameUp = host.host.toUpperCase();
+          if(hostNameUp.includes('RT-')) typeStr = 'Router';
+          else if(hostNameUp.includes('SW-')) typeStr = 'Switch';
+          else if(hostNameUp.includes('FW-')) typeStr = 'Firewall';
+          else if(hostNameUp.includes('AP-')) typeStr = 'Access Point';
+
+          return {
+            zabbixId: host.hostid,
+            id: host.host, // Misal: RT-CORE-01
+            name: host.name || host.host,
+            type: typeStr,
+            location: 'Terdeteksi di Jaringan', // Placeholder lokasi
+            ip: host.interfaces && host.interfaces.length > 0 ? host.interfaces[0].ip : 'No IP',
+            gateway: 'Auto (DHCP)', 
+            status: isOnline ? 'Online' : 'Offline',
+            ping: isOnline ? Math.floor(Math.random() * 15) + 2 : 0, // Animasi awal
+            cpu: isOnline ? Math.floor(Math.random() * 30) + 10 : 0 // Animasi awal
+          };
+        });
+
+        setDevices(mappedDevices);
+      } catch (err) {
+        console.error("Gagal narik data Zabbix ke Inventaris:", err);
+      }
+    };
+
+    // 2. FUNGSI NARIK DATA ROGUE AP (Keamanan)
+    const loadRogueData = () => {
       let savedRogue = JSON.parse(localStorage.getItem('netmon_rogue_aps'));
       if (!savedRogue || savedRogue.length === 0) {
         savedRogue = [
@@ -34,12 +59,15 @@ const Devices = () => {
         localStorage.setItem('netmon_rogue_aps', JSON.stringify(savedRogue));
       }
       setRogueAps(savedRogue);
-      setLoading(false);
     };
     
-    setTimeout(loadData, 500); 
+    fetchZabbixDevices();
+    loadRogueData();
+    
+    setTimeout(() => setLoading(false), 800); 
   }, []);
 
+  // EFEK ANIMASI: Bikin angka ping & CPU gerak-gerak tiap 3 detik biar terlihat live
   useEffect(() => {
     if (loading || devices.length === 0) return;
     const interval = setInterval(() => {
@@ -48,14 +76,12 @@ const Devices = () => {
         return {
           ...dev,
           ping: Math.max(1, dev.ping + (Math.floor(Math.random() * 5) - 2)),
-          cpu: Math.min(100, Math.max(5, dev.cpu + (Math.floor(Math.random() * 9) - 4))),
-          rx: dev.rx + Math.floor(Math.random() * 20) - 10,
-          tx: dev.tx + Math.floor(Math.random() * 15) - 7,
+          cpu: Math.min(100, Math.max(5, dev.cpu + (Math.floor(Math.random() * 9) - 4)))
         };
       }));
     }, 3000);
     return () => clearInterval(interval);
-  }, [loading]);
+  }, [loading, devices.length]);
 
   const openModal = (isEdit = false, dev = null) => {
     setDeviceModal({ isOpen: true, isEdit, data: dev });
@@ -73,26 +99,22 @@ const Devices = () => {
     if (deviceModal.isEdit) {
       updatedDevices = devices.map(d => d.id === deviceModal.data.id ? { ...d, ...formData } : d);
     } else {
-      const newDevice = { ...formData, status: 'Online', ping: 5, cpu: 10, rx: 100, tx: 50 };
+      const newDevice = { ...formData, status: 'Online', ping: 5, cpu: 10 };
       updatedDevices = [...devices, newDevice];
     }
     
     setDevices(updatedDevices);
-    localStorage.setItem('netmon_devices', JSON.stringify(updatedDevices)); 
     setDeviceModal({ isOpen: false, isEdit: false, data: null });
   };
 
   const handleDelete = (id) => {
-    if(window.confirm('Yakin ingin menghapus perangkat ini dari inventaris?')) {
+    if(window.confirm('Yakin ingin menghapus perangkat ini dari inventaris dashboard? (Data asli di Zabbix tidak terhapus)')) {
       const updatedDevices = devices.filter(d => d.id !== id);
       setDevices(updatedDevices);
-      localStorage.setItem('netmon_devices', JSON.stringify(updatedDevices)); 
     }
   };
 
-  // =======================================================
-  // INI BAGIAN YANG DIBENERIN BIAR NYAMBUNG KE DASHBOARD
-  // =======================================================
+  // LOGIKA PERINGATAN ROGUE AP (TIDAK BERUBAH)
   const toggleWarningRogue = (id, currentStatus) => {
     const updatedRogue = rogueAps.map(r => r.id === id ? { ...r, warningActive: !currentStatus } : r);
     setRogueAps(updatedRogue);
@@ -100,15 +122,13 @@ const Devices = () => {
 
     if (!currentStatus) {
       const targetAP = rogueAps.find(r => r.id === id);
-      
-    // BAHASA SUDAH DIGANTI & DITAMBAH TAG <strong> BUAT BOLD
-    const newAlert = {
-      id: targetAP.id,
-      severity: 'critical',
-      title: `Rogue AP Detected`, 
-      desc: `Harap berhati-hati terhadap jaringan WiFi bernama <strong>"${targetAP.ssid}"</strong> di sekitar <strong>${targetAP.location}</strong>. Ini adalah WiFi ilegal/palsu yang bisa mencuri data Anda!`,
-      status: 'unread'
-    };
+      const newAlert = {
+        id: targetAP.id,
+        severity: 'critical',
+        title: `Rogue AP Detected`, 
+        desc: `Harap berhati-hati terhadap jaringan WiFi bernama <strong>"${targetAP.ssid}"</strong> di sekitar <strong>${targetAP.location}</strong>. Ini adalah WiFi ilegal/palsu yang bisa mencuri data Anda!`,
+        status: 'unread'
+      };
 
       const existingAlerts = JSON.parse(localStorage.getItem('netmon_alerts')) || [];
       localStorage.setItem('netmon_alerts', JSON.stringify([...existingAlerts, newAlert]));
@@ -122,7 +142,7 @@ const Devices = () => {
   if (loading) {
     return (
       <div className="page active" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-        <div style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Menyinkronkan data jaringan...</div>
+        <div style={{ color: 'var(--primary)', fontWeight: 'bold' }}>Menyinkronkan data dengan Zabbix Server...</div>
       </div>
     );
   }
@@ -165,33 +185,39 @@ const Devices = () => {
                 </tr>
               </thead>
               <tbody>
-                {devices.map((dev) => (
-                  <tr key={dev.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '12px 10px' }}>
-                      <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--primary-light)' }}>{dev.id}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-primary)' }}>{dev.name}</div>
-                    </td>
-                    <td style={{ padding: '12px 10px' }}>
-                      <div style={{ fontSize: '12px', color: 'var(--text-primary)', fontFamily: 'monospace' }}>IP: {dev.ip}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>GW: {dev.gateway}</div>
-                    </td>
-                    <td style={{ padding: '12px 10px' }}>
-                      <div style={{ fontSize: '12px', color: 'var(--text-primary)' }}>{dev.type}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{dev.location}</div>
-                    </td>
-                    <td style={{ padding: '12px 10px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <span className={`status-dot ${dev.status === 'Online' ? 'online' : 'offline'}`} style={{ width: '6px', height: '6px' }}></span>
-                        <span style={{ fontSize: '11px', fontWeight: 'bold', color: dev.status === 'Online' ? 'var(--green)' : 'var(--red)' }}>{dev.status} ({dev.ping}ms)</span>
-                      </div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>CPU Load: {dev.cpu}%</div>
-                    </td>
-                    <td style={{ padding: '12px 10px', textAlign: 'right' }}>
-                      <button onClick={() => openModal(true, dev)} style={{ fontSize: '11px', padding: '6px 10px', marginRight: '6px', borderRadius: '4px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-primary)', cursor: 'pointer' }}>Edit</button>
-                      <button onClick={() => handleDelete(dev.id)} style={{ fontSize: '11px', padding: '6px 10px', borderRadius: '4px', border: 'none', background: 'var(--red)', color: 'white', cursor: 'pointer' }}>Hapus</button>
-                    </td>
-                  </tr>
-                ))}
+                {devices.length === 0 ? (
+                   <tr>
+                     <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>Belum ada perangkat terdaftar di Zabbix.</td>
+                   </tr>
+                ) : (
+                  devices.map((dev) => (
+                    <tr key={dev.zabbixId || dev.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '12px 10px' }}>
+                        <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--primary-light)' }}>{dev.id}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-primary)' }}>{dev.name}</div>
+                      </td>
+                      <td style={{ padding: '12px 10px' }}>
+                        <div style={{ fontSize: '12px', color: 'var(--text-primary)', fontFamily: 'monospace' }}>IP: {dev.ip}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>GW: {dev.gateway}</div>
+                      </td>
+                      <td style={{ padding: '12px 10px' }}>
+                        <div style={{ fontSize: '12px', color: 'var(--text-primary)' }}>{dev.type}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{dev.location}</div>
+                      </td>
+                      <td style={{ padding: '12px 10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <span className={`status-dot ${dev.status === 'Online' ? 'online' : 'offline'}`} style={{ width: '6px', height: '6px' }}></span>
+                          <span style={{ fontSize: '11px', fontWeight: 'bold', color: dev.status === 'Online' ? 'var(--green)' : 'var(--red)' }}>{dev.status} ({dev.ping}ms)</span>
+                        </div>
+                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>CPU Load: {dev.cpu}%</div>
+                      </td>
+                      <td style={{ padding: '12px 10px', textAlign: 'right' }}>
+                        <button onClick={() => openModal(true, dev)} style={{ fontSize: '11px', padding: '6px 10px', marginRight: '6px', borderRadius: '4px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-primary)', cursor: 'pointer' }}>Edit</button>
+                        <button onClick={() => handleDelete(dev.id)} style={{ fontSize: '11px', padding: '6px 10px', borderRadius: '4px', border: 'none', background: 'var(--red)', color: 'white', cursor: 'pointer' }}>Hapus</button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

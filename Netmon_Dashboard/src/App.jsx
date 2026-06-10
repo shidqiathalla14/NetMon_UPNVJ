@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Guest from './pages/Guest';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/DashboardDesktop';
 import Devices from './pages/Devices';
 import LaporGangguan from './pages/LaporGangguan';
 import DaftarLaporan from './pages/DaftarLaporan';
@@ -10,9 +10,48 @@ import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-  const [activePage, setActivePage] = useState('dashboard');
+  // ========================================================
+  // REVISI: INHERIT STATE LOGIN DARI LOCALSTORAGE (ANTI KEDIP)
+  // ========================================================
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const savedUser = localStorage.getItem('active_user');
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      const timeNow = new Date().getTime();
+      // Jika waktu sekarang belum melewati batas kedaluwarsa sesi
+      if (timeNow < userData.expireTime) {
+        return true;
+      } else {
+        localStorage.removeItem('active_user'); // Sesi habis, hapus data
+      }
+    }
+    return false;
+  });
+
+  const [userRole, setUserRole] = useState(() => {
+    const savedUser = localStorage.getItem('active_user');
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      const timeNow = new Date().getTime();
+      if (timeNow < userData.expireTime) {
+        return userData.role;
+      }
+    }
+    return null;
+  });
+
+  const [activePage, setActivePage] = useState(() => {
+    const savedUser = localStorage.getItem('active_user');
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      const timeNow = new Date().getTime();
+      if (timeNow < userData.expireTime) {
+        return userData.role === 'admin' ? 'dashboard' : 'lapor';
+      }
+    }
+    return 'dashboard';
+  });
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isDark, setIsDark] = useState(false); 
   const [showLoginPage, setShowLoginPage] = useState(false);
@@ -20,6 +59,50 @@ function App() {
   // STATE BARU: Buat ngatur dynamic bubble
   const [alertCount, setAlertCount] = useState(0);
   const [ticketCount, setTicketCount] = useState(0);
+
+  // ========================================================
+  // EFFECT BARU: SENSOR INTERAKSI UNTUK RESET SESI 10 MENIT
+  // ========================================================
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const resetSesi = () => {
+      const savedUser = localStorage.getItem('active_user');
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        // Perpanjang masa aktif sesi: Waktu Sekarang + 10 Menit
+        userData.expireTime = new Date().getTime() + 10 * 60 * 1000;
+        localStorage.setItem('active_user', JSON.stringify(userData));
+      }
+    };
+
+    // Pasang sensor aktivitas pengguna pada window browser
+    window.addEventListener('click', resetSesi);
+    window.addEventListener('keypress', resetSesi);
+    window.addEventListener('scroll', resetSesi);
+    window.addEventListener('mousemove', resetSesi);
+
+    // Detektor otomatis setiap 5 detik untuk cek apakah sesi sudah kedaluwarsa di latar belakang
+    const autoLogoutCheck = setInterval(() => {
+      const savedUser = localStorage.getItem('active_user');
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        if (new Date().getTime() > userData.expireTime) {
+          handleLogout();
+          alert("Sesi Anda telah habis karena tidak ada aktivitas selama 10 menit.");
+        }
+      }
+    }, 5000);
+
+    // Bersihkan listener dan interval saat komponen dilepas
+    return () => {
+      window.removeEventListener('click', resetSesi);
+      window.removeEventListener('keypress', resetSesi);
+      window.removeEventListener('scroll', resetSesi);
+      window.removeEventListener('mousemove', resetSesi);
+      clearInterval(autoLogoutCheck);
+    };
+  }, [isLoggedIn]);
 
   // EFFECT BARU: Radar buat ngitung bubble tiap detik
   useEffect(() => {
@@ -49,6 +132,14 @@ function App() {
   }, [isDark]);
 
   const handleLogin = (role) => {
+    // Set stempel kedaluwarsa di local storage saat tombol login ditekan (Waktu sekarang + 10 menit)
+    const expireTime = new Date().getTime() + 10 * 60 * 1000;
+    const loginData = {
+      role: role,
+      expireTime: expireTime
+    };
+    localStorage.setItem('active_user', JSON.stringify(loginData));
+
     setUserRole(role);
     setIsLoggedIn(true);
     setShowLoginPage(false); 
@@ -56,8 +147,10 @@ function App() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('active_user'); // Hapus jejak login dari brankas browser
     setIsLoggedIn(false);
     setUserRole(null);
+    setShowLoginPage(false);
   };
 
   const toggleTheme = () => setIsDark(!isDark);

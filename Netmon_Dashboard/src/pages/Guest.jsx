@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Dashboard from './Dashboard';
+import Dashboard from './DashboardDesktop';
 import ExtraPages from './ExtraPages';
 import Navbar from '../components/Navbar';
 

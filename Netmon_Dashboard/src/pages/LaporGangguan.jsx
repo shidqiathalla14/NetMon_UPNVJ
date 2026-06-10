@@ -10,15 +10,19 @@ const LaporGangguan = () => {
     lokasi: '', lantai: '', kategori: '', deskripsi: ''
   });
   const [fileName, setFileName] = useState('Tidak ada file yang dipilih');
-  
-  // STATE BARU: Buat nyimpen data asli fotonya (Base64)
   const [fileBase64, setFileBase64] = useState(null);
 
+  // NARIK DATA DARI MYSQL BUAT TAB RIWAYAT
   useEffect(() => {
     if (activeTab === 'riwayat') {
-      const saved = JSON.parse(localStorage.getItem('netmon_tickets')) || [];
-      const myTickets = saved.filter(t => t.nama === 'Shidqi Athalla');
-      setRiwayat(myTickets);
+      fetch('http://localhost:5000/api/laporan')
+        .then(res => res.json())
+        .then(data => {
+          // Cuma nampilin laporan punya lu doang
+          const myTickets = data.filter(t => t.nama_pelapor === 'Shidqi Athalla');
+          setRiwayat(myTickets);
+        })
+        .catch(err => console.error(err));
     }
   }, [activeTab]);
 
@@ -26,14 +30,13 @@ const LaporGangguan = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // UPDATE: Convert gambar ke Base64 biar bisa disimpen di Local Storage
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setFileName(file.name);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFileBase64(reader.result); // Simpen hasil convert-nya
+        setFileBase64(reader.result);
       };
       reader.readAsDataURL(file);
     } else {
@@ -46,34 +49,36 @@ const LaporGangguan = () => {
     e.preventDefault();
     setFormData({ lokasi: '', lantai: '', kategori: '', deskripsi: '' });
     setFileName('Tidak ada file yang dipilih');
-    setFileBase64(null); // Reset fotonya juga
+    setFileBase64(null);
   };
 
-  const handleSubmit = (e) => {
+  // KIRIM DATA KE MYSQL
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
-    setTimeout(() => {
-      const newTicket = {
-        id: `TKT-${Math.floor(Math.random() * 900) + 100}`,
-        nama: 'Shidqi Athalla',
-        role: 'Mahasiswa',
-        lokasi: `${formData.lokasi} - ${formData.lantai}`,
-        masalah: formData.kategori,
-        deskripsi: formData.deskripsi,
-        status: 'pending',
-        waktu: new Date().toLocaleString('id-ID'),
-        catatan: '',
-        foto: fileBase64 // Masukin data Base64 fotonya ke sini
-      };
+    const payload = {
+      nama_pelapor: 'Shidqi Athalla',
+      nim_nip: '241011400000', // Dummy NIM
+      lokasi: `${formData.lokasi} - ${formData.lantai}`,
+      kategori: formData.kategori,
+      deskripsi: formData.deskripsi,
+      foto: fileBase64
+    };
 
-      const existingTickets = JSON.parse(localStorage.getItem('netmon_tickets')) || [];
-      localStorage.setItem('netmon_tickets', JSON.stringify([newTicket, ...existingTickets]));
-
-      setLoading(false);
+    try {
+      await fetch('http://localhost:5000/api/laporan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
       setIsSubmitted(true);
-      setFileBase64(null); // Kosongin memori pas udah kekirim
-    }, 1000);
+      setFileBase64(null);
+    } catch (error) {
+      alert("Gagal terhubung ke server!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const DropdownIcon = () => (
@@ -169,7 +174,6 @@ const LaporGangguan = () => {
                   {fileName}
                 </div>
               </div>
-              <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>*Upload foto indikator router mati, pesan error, atau letak kabel yang putus.</p>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
@@ -194,14 +198,14 @@ const LaporGangguan = () => {
                 <div key={tiket.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '10px', padding: '20px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid var(--border)', paddingBottom: '12px' }}>
                     <div>
-                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--primary-light)' }}>{tiket.id}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{tiket.waktu}</div>
+                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--primary-light)' }}>TKT-{tiket.id}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{new Date(tiket.created_at).toLocaleString('id-ID')}</div>
                     </div>
                     <span className={`badge ${tiket.status === 'selesai' ? 'online' : tiket.status === 'proses' ? 'info' : 'warning'}`}>
                       {tiket.status.toUpperCase()}
                     </span>
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginBottom: '8px' }}><strong>Masalah:</strong> {tiket.masalah} di {tiket.lokasi}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginBottom: '8px' }}><strong>Masalah:</strong> {tiket.kategori} di {tiket.lokasi}</div>
                   <div style={{ fontSize: '12px', color: 'var(--text-primary)', marginBottom: '16px' }}><strong>Detail:</strong> {tiket.deskripsi}</div>
                   
                   <div style={{ background: 'var(--bg-dark)', padding: '12px', borderRadius: '6px', borderLeft: '3px solid var(--primary)' }}>
