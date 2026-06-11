@@ -4,16 +4,16 @@
   # NetMon UPNVJ
   **Sistem Monitoring Jaringan & Infrastruktur | Network Operations Center**
 
-  <p>Dikembangkan untuk memantau lalu lintas jaringan, status perangkat, dan manajemen pelaporan gangguan di lingkungan kampus UPN Veteran Jakarta.</p>
+  <p>Dikembangkan untuk memantau lalu lintas jaringan, status perangkat, dan manajemen pelaporan gangguan di lingkungan kampus UPN Veteran Jakarta secara <i>real-time</i>.</p>
 
   ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
   ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-  ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+  ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+  ![Express.js](https://img.shields.io/badge/Express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
+  ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
   ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
   ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
   ![Zabbix](https://img.shields.io/badge/Zabbix-CC0000?style=for-the-badge&logo=zabbix&logoColor=white)
-  ![MariaDB](https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white)
-  ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 </div>
 
 ---
@@ -37,82 +37,105 @@
 
 ## Struktur Proyek
 
+Sistem ini menggunakan arsitektur *microservices* yang terbagi menjadi tiga modul utama:
+
 ```text
 Netmon_Project_UPNVJ/
-├── Netmon_Dashboard/             # Frontend React (Vite)
+├── Netmon_Dashboard/             # 1. Frontend React (Vite) - Port 5173
 │   ├── src/
-│   │   ├── assets/               # Aset statis (WebP, SVG)
-│   │   ├── components/           # Komponen UI modular (Navbar, Sidebar)
+│   │   ├── components/           # Komponen UI modular
 │   │   ├── pages/                # Halaman utama (Dashboard, Traffic, Laporan)
-│   │   ├── styles/               # CSS global & token desain (Light/Dark mode)
-│   │   ├── App.jsx               # Router utama aplikasi
 │   │   └── main.jsx              # Entry point React
-│   ├── package.json              # Dependensi NPM frontend
-│   └── vite.config.js            # Konfigurasi Vite
 │
-└── Netmon_Server/                # Backend Infrastructure (Docker)
-    ├── db_data/                  # Volume persisten MariaDB (di-ignore via .gitignore)
-    └── docker-compose.yml        # Orkestrasi container (Zabbix, Grafana, MariaDB)
+├── Netmon_API/                   # 2. Backend API Bridge (Express.js) - Port 5000
+│   ├── server.js                 # Endpoint penghubung MySQL & Zabbix API
+│   └── package.json              # Dependensi backend (cors, mysql, axios)
+│
+└── Netmon_Server/                # 3. Backend Infrastructure (Docker)
+    ├── grafana_data/             # Konfigurasi Grafana Viewer
+    └── docker-compose.yml        # Orkestrasi container Zabbix & Grafana
 ```
 
 ---
 
-## 🛠️ Alat & Teknologi yang Digunakan
+## Alat & Teknologi yang Digunakan
 
-Proyek ini dibangun menggunakan kombinasi perangkat lunak modern untuk memastikan skalabilitas, keamanan, dan performa tinggi pada pemantauan jaringan.
+Proyek ini dibangun menggunakan kombinasi perangkat lunak modern untuk memastikan skalabilitas, keamanan, dan sinkronisasi data *real-time*.
 
 ### 1. Frontend (UI/UX)
 
-* **[React.js](https://react.dev/):** Library utama untuk membangun antarmuka pengguna berbasis komponen yang reaktif.
-* **[Vite](https://vitejs.dev/):** *Build-tool* generasi baru yang memberikan pengalaman *development* super cepat.
-* **[Node.js & NPM](https://nodejs.org/):** *Environment* untuk menjalankan JavaScript dan mengelola paket/pustaka frontend.
-* **Vanilla CSS:** Pendekatan *styling* murni menggunakan *CSS Variables* untuk mendukung tema *Light/Dark Mode* tanpa membebani sistem dengan *framework* eksternal.
+- **React.js & Vite** — Membangun antarmuka pengguna yang reaktif dengan pengalaman development super cepat.
+- **Vanilla CSS** — Pendekatan styling murni untuk mendukung tema Light/Dark Mode.
 
-### 2. Backend & Infrastruktur Server
+### 2. Backend API (Middleware)
 
-* **[Docker](https://www.docker.com/):** Platform *containerization* untuk mengisolasi lingkungan *server* agar dapat berjalan konsisten di mesin manapun.
-* **[Docker Compose](https://docs.docker.com/compose/):** Alat orkestrasi untuk menjalankan Zabbix, Grafana, dan MariaDB secara bersamaan hanya dengan satu perintah.
-* **[Zabbix Server](https://www.zabbix.com/):** *Engine* utama tingkat *enterprise* yang bertugas melakukan *polling* data jaringan, status ping, dan beban perangkat via protokol SNMP.
-* **[Grafana](https://grafana.com/):** Platform analitik visual untuk menyajikan data *traffic* dari Zabbix menjadi grafik *real-time* yang interaktif.
-* **[MariaDB](https://mariadb.org/):** Sistem manajemen basis data relasional (RDBMS) tangguh yang menyimpan seluruh metrik riwayat jaringan dan konfigurasi Zabbix.
+- **Node.js & Express.js** — Bertindak sebagai jembatan (*API Bridge*) untuk menghubungkan Frontend React dengan Zabbix Server dan Database MySQL secara aman.
+- **Axios & Cors** — Menangani request HTTP lintas port dengan lancar.
 
-### 3. Version Control & Pengembangan
+### 3. Database & Infrastruktur Server
 
-* **[Git](https://git-scm.com/):** Sistem pengontrol versi untuk melacak setiap riwayat perubahan kode.
-* **[GitHub](https://github.com/):** Platform *hosting* repositori utama untuk kolaborasi dan dokumentasi.
-* **[Visual Studio Code](https://code.visualstudio.com/):** *Code editor* utama yang digunakan selama proses pengembangan *frontend* dan konfigurasi *file* YAML.
+- **MySQL (XAMPP)** — Sistem manajemen basis data relasional (RDBMS) untuk menyimpan data sistem ticketing / laporan gangguan jaringan.
+- **Docker & Docker Compose** — Platform containerization untuk menjalankan Zabbix dan Grafana secara bersamaan.
+- **Zabbix Server** — Engine utama tingkat enterprise untuk melakukan polling data jaringan (SNMP).
+- **Grafana** — Platform analitik visual (terintegrasi via Iframe Mode Kiosk).
 
 ---
 
 ## Prinsip Desain
 
-NetMon UPNVJ dibangun di atas tiga prinsip utama yang diterapkan di seluruh lapisan sistemnya:
+NetMon UPNVJ dibangun di atas tiga prinsip utama:
 
-**1. Pemisahan Konteks (Separation of Concerns)**
-Frontend (UI/UX) dan Backend (Server/Engine) berjalan di lingkungan yang sepenuhnya terisolasi. Kendala pada salah satu sisi tidak akan langsung melumpuhkan sisi lainnya.
+### 1. Pemisahan Konteks *(Separation of Concerns)*
 
-**2. Transparansi Berbasis Role**
-Pengguna umum (mahasiswa) dapat memantau traffic jaringan secara langsung tanpa perlu login. Sementara itu, aksi seperti manipulasi data perangkat dan penyelesaian tiket gangguan dikunci khusus untuk Administrator NOC.
+Frontend (UI/UX), Backend API, dan Database/Server berjalan di lingkungan yang sepenuhnya terisolasi.
 
-**3. Performa & Responsivitas Tinggi**
-Aset lokal berbasis WebP, integrasi Iframe Kiosk, dan arsitektur Virtual DOM dari React memastikan transisi antar-halaman berjalan cepat tanpa perlu *reload* berulang.
+### 2. Transparansi Berbasis Role
+
+Pengguna umum (mahasiswa) dapat memantau traffic jaringan tanpa login dan membuat laporan gangguan. Aksi manipulasi data perangkat dan eksekusi tiket khusus untuk Administrator NOC.
+
+### 3. Integrasi Data *Real-Time*
+
+Inventaris perangkat tidak lagi statis, melainkan ditarik langsung dari engine Zabbix melalui API. Laporan pengguna langsung tersimpan di MySQL dan termuat secara instan di sisi Administrator.
 
 ---
 
 ## Panduan Instalasi
 
-Pastikan perangkat Anda sudah menginstal **Node.js**, **Git**, dan **Docker Desktop** sebelum memulai.
+Pastikan perangkat Anda sudah menginstal **Node.js**, **XAMPP**, dan **Docker Desktop**. Siapkan 3 tab terminal terpisah untuk menjalankan sistem ini.
 
-### Tahap 1 | Jalankan Backend (Zabbix & Grafana)
+### Tahap 1 | Persiapan Database MySQL (XAMPP)
+
+1. Buka **XAMPP Control Panel**.
+2. Ubah port MySQL menjadi `3307` (melalui menu **Config > my.ini**) untuk menghindari tabrakan dengan kontainer Docker.
+3. *Start* **Apache** dan **MySQL**.
+4. Buka `http://localhost/phpmyadmin`, buat database baru bernama `netmon_upnvj`, lalu eksekusi query pembuatan tabel laporan.
+
+### Tahap 2 | Jalankan Infrastruktur (Zabbix & Grafana)
+
+Buka **Tab Terminal 1:**
 
 ```bash
 cd Netmon_Server
 docker-compose up -d
 ```
 
-> Pastikan tidak ada konflik port. Grafana berjalan di `localhost:3000`, Zabbix Web di `localhost:8080`.
+> Grafana berjalan di `localhost:3000` (mode Anonymous Viewer), Zabbix Web di `localhost:8080`.
 
-### Tahap 2 | Jalankan Frontend Dashboard (React)
+### Tahap 3 | Jalankan Backend API Bridge (Express.js)
+
+Buka **Tab Terminal 2:**
+
+```bash
+cd Netmon_API
+npm install
+node server.js
+```
+
+> Server API akan berjalan di `http://localhost:5000`.
+
+### Tahap 4 | Jalankan Frontend Dashboard (React)
+
+Buka **Tab Terminal 3:**
 
 ```bash
 cd Netmon_Dashboard
@@ -120,52 +143,34 @@ npm install
 npm run dev
 ```
 
-Buka browser dan akses URL yang ditampilkan Vite (umumnya `http://localhost:5173`).
+> Akses antarmuka pengguna di `http://localhost:5173`.
 
 ---
 
 ## Kredensial Akses
 
-Sistem menggunakan Local Storage untuk inisialisasi akun *default*. Gunakan kredensial berikut untuk menguji masing-masing level akses:
+Sistem otentikasi menggunakan Local Storage dengan role terpisah. Gunakan kredensial berikut:
 
 | Role | Username / NIM | Password | Akses |
 |---|---|---|---|
-| **Administrator NOC** | `admin@upnvj.ac.id` | `admin123` | Kontrol penuh inventaris perangkat (CRUD), aktivasi peringatan Rogue AP, eksekusi tiket gangguan |
-| **Mahasiswa / Pengguna Umum** | `mahasiswa` | `mhs123` | Membuat laporan gangguan, mengunggah bukti foto, memantau status tiket |
-
-> [!NOTE]
-> Jika cache/cookies browser dibersihkan atau menggunakan mode Incognito, data akun akan ter-reset ke dua akun *default* di atas secara otomatis.
+| Administrator NOC | `admin@upnvj.ac.id` | `admin123` | Kontrol penuh inventaris Zabbix, aktivasi Rogue AP, update status tiket MySQL |
+| Mahasiswa / Pengguna | `mahasiswa` | `mhs123` | Membuat laporan gangguan ke MySQL, upload bukti foto, pantau riwayat tiket |
 
 ---
 
 ## Cara Penggunaan
 
-**Memantau Traffic Jaringan**
-Buka menu **Traffic**. Data ditampilkan dalam mode Kiosk agar tampilan Grafana tidak tumpang tindih dengan navigasi utama.
-
-**Manajemen Inventaris Perangkat**
-Buka menu **Perangkat**. Administrator memiliki akses penuh (CRUD) untuk mengelola perangkat jaringan seperti Router, Switch, dan Firewall.
-
-**Deteksi Keamanan | Rogue AP**
-Pada menu **Perangkat**, buka tab **Keamanan (Rogue AP)**. Jika terdeteksi sinyal ilegal, klik tombol peringatan untuk menyebarkan notifikasi darurat ke seluruh pengguna dashboard secara global.
-
-**Penanganan Tiket Gangguan**
-Buka menu **Laporan Masuk**. Klik *Tindak Lanjuti* pada tiket berstatus **Pending**, tambahkan catatan teknisi, lalu konfirmasi perubahan status menjadi **Selesai**.
+- **Memantau Traffic Jaringan** — Buka menu **Traffic**. Data ditampilkan dalam mode Kiosk dari Grafana.
+- **Manajemen Inventaris** — Buka menu **Perangkat**. Data ditarik secara *live* dari Zabbix API.
+- **Deteksi Rogue AP** — Tab **Keamanan** memungkinkan Admin menyebarkan notifikasi darurat terkait WiFi ilegal ke seluruh pengguna.
+- **Sistem Ticketing** — Pengguna melaporkan masalah di menu **Lapor Gangguan**. Admin dapat mengeksekusi dan memberi catatan teknisi melalui menu **Laporan Masuk**, tersinkronisasi 100% via MySQL.
 
 ---
 
 ## Panduan Maintenance
 
-Disarankan untuk melakukan pemeliharaan berikut setiap **3-6 bulan** guna menjaga performa sistem tetap optimal.
-
-**Pembersihan Log & Cache Docker**
-
-Hapus container yang tidak aktif atau sudah membengkak:
-
-```bash
-docker system prune -a --volumes
-```
-
-**Manajemen Penyimpanan Metrik Zabbix**
-
-Akses panel Zabbix di `localhost:8080`, lalu navigasi ke **Administration > Housekeeping**. Sesuaikan rentang hari penyimpanan **History & Trends** agar database tidak kehabisan kapasitas penyimpanan.
+- **Pembersihan Docker** — Jalankan perintah berikut untuk menghapus cache kontainer yang menumpuk:
+  ```bash
+  docker system prune -a --volumes
+  ```
+- **Housekeeping Zabbix** — Sesuaikan retensi History & Trends di menu **Administration > Housekeeping** pada panel Zabbix agar ruang penyimpanan tetap aman.
