@@ -52,7 +52,7 @@ function App() {
     return 'dashboard';
   });
 
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(window.innerWidth <= 768);
   const [isDark, setIsDark] = useState(false); 
   const [showLoginPage, setShowLoginPage] = useState(false);
 

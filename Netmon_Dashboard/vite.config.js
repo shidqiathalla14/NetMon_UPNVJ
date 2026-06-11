@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/Netmon_Project_UPNVJ/', // 👈 Pastikan ada garis miring di awal dan akhir!
+  base: '/NetMon_UPNVJ/', // 👈 Pastikan TEPAT SEPERTI INI, bukan Netmon_Project_UPNVJ
 })

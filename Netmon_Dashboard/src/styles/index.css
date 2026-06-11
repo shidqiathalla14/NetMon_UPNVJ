@@ -299,21 +299,41 @@ tbody td { padding:12px 14px; }
       }
     }
 
-    /* ==========================================
-   🔧 GLOBAL FIX UNTUK LAYAR HP (BOTTOM BAR CUT OFF)
-   ========================================== */
-.app-container {
-   /* Ubah vh jadi dvh biar menyesuaikan address bar browser HP otomatis */
-   height: 100dvh !important; 
- }
- 
- @media screen and (max-width: 768px) {
-   .sidebar {
-     height: 100dvh !important;
-   }
-   
-   /* Kasih ruang napas ekstra di tempat tombol login / logout bersarang */
-   .sidebar > div:last-child {
-     padding-bottom: 30px !important; 
-   }
- }
+/* ==========================================================
+   🔧 GLOBAL & NAVBAR FIX UNTUK LAYAR HP (RESPONSIVE MASTER)
+   ========================================================== */
+   .app-container {
+    /* Ubah vh jadi dvh biar menyesuaikan address bar browser HP otomatis */
+    height: 100dvh !important; 
+  }
+  
+  @media screen and (max-width: 768px) {
+    .sidebar {
+      height: 100dvh !important;
+    }
+  
+    /* 1. Sembunyikan jam digital agar ruang lega */
+    .clock { 
+      display: none !important; 
+    }
+  
+    /* 2. Sembunyikan teks "NOC Dashboard" & slash (/) di HP */
+    .breadcrumb span:nth-child(2),
+    .breadcrumb span:nth-child(3) { 
+      display: none !important; 
+    }
+  
+    /* 3. Rapatkan jarak antar komponen kanan navbar biar toggle muat */
+    .navbar-right {
+      gap: 8px !important;
+    }
+    
+    .navbar {
+      padding: 0 16px !important;
+    }
+  
+    /* 4. Kasih ruang napas ekstra di tempat tombol logout bersarang */
+    .sidebar > div:last-child {
+      padding-bottom: 30px !important; 
+    }
+  }
