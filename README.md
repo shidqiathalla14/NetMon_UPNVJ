@@ -99,20 +99,20 @@ Proyek ini dibangun menggunakan kombinasi perangkat lunak modern untuk memastika
 
 ### 1. Frontend (UI/UX)
 
-- **React.js & Vite** — Membangun antarmuka pengguna yang reaktif dengan pengalaman development super cepat.
-- **Vanilla CSS** — Pendekatan styling murni untuk mendukung tema Light/Dark Mode.
+- **React.js & Vite** - Membangun antarmuka pengguna yang reaktif dengan pengalaman development super cepat.
+- **Vanilla CSS** - Pendekatan styling murni untuk mendukung tema Light/Dark Mode.
 
 ### 2. Backend API (Middleware)
 
-- **Node.js & Express.js** — Bertindak sebagai jembatan (*API Bridge*) untuk menghubungkan Frontend React dengan Zabbix Server dan Database MySQL secara aman.
-- **Axios & Cors** — Menangani request HTTP lintas port dengan lancar.
+- **Node.js & Express.js** - Bertindak sebagai jembatan (*API Bridge*) untuk menghubungkan Frontend React dengan Zabbix Server dan Database MySQL secara aman.
+- **Axios & Cors** - Menangani request HTTP lintas port dengan lancar.
 
 ### 3. Database & Infrastruktur Server
 
-- **MySQL (XAMPP)** — Sistem manajemen basis data relasional (RDBMS) untuk menyimpan data sistem ticketing / laporan gangguan jaringan.
-- **Docker & Docker Compose** — Platform containerization untuk menjalankan Zabbix dan Grafana secara bersamaan.
-- **Zabbix Server** — Engine utama tingkat enterprise untuk melakukan polling data jaringan (SNMP).
-- **Grafana** — Platform analitik visual (terintegrasi via Iframe Mode Kiosk).
+- **MySQL (XAMPP)** - Sistem manajemen basis data relasional (RDBMS) untuk menyimpan data sistem ticketing / laporan gangguan jaringan.
+- **Docker & Docker Compose** - Platform containerization untuk menjalankan Zabbix dan Grafana secara bersamaan.
+- **Zabbix Server** - Engine utama tingkat enterprise untuk melakukan polling data jaringan (SNMP).
+- **Grafana** - Platform analitik visual (terintegrasi via Iframe Mode Kiosk).
 
 ---
 
@@ -195,17 +195,17 @@ Sistem otentikasi menggunakan Local Storage dengan role terpisah. Gunakan kreden
 
 ## Cara Penggunaan
 
-- **Memantau Traffic Jaringan** — Buka menu **Traffic**. Data ditampilkan dalam mode Kiosk dari Grafana.
-- **Manajemen Inventaris** — Buka menu **Perangkat**. Data ditarik secara *live* dari Zabbix API.
-- **Deteksi Rogue AP** — Tab **Keamanan** memungkinkan Admin menyebarkan notifikasi darurat terkait WiFi ilegal ke seluruh pengguna.
-- **Sistem Ticketing** — Pengguna melaporkan masalah di menu **Lapor Gangguan**. Admin dapat mengeksekusi dan memberi catatan teknisi melalui menu **Laporan Masuk**, tersinkronisasi 100% via MySQL.
+- **Memantau Traffic Jaringan** - Buka menu **Traffic**. Data ditampilkan dalam mode Kiosk dari Grafana.
+- **Manajemen Inventaris** - Buka menu **Perangkat**. Data ditarik secara *live* dari Zabbix API.
+- **Deteksi Rogue AP** - Tab **Keamanan** memungkinkan Admin menyebarkan notifikasi darurat terkait WiFi ilegal ke seluruh pengguna.
+- **Sistem Ticketing** - Pengguna melaporkan masalah di menu **Lapor Gangguan**. Admin dapat mengeksekusi dan memberi catatan teknisi melalui menu **Laporan Masuk**, tersinkronisasi 100% via MySQL.
 
 ---
 
 ## Panduan Maintenance
 
-- **Pembersihan Docker** — Jalankan perintah berikut untuk menghapus cache kontainer yang menumpuk:
+- **Pembersihan Docker** - Jalankan perintah berikut untuk menghapus cache kontainer yang menumpuk:
   ```bash
   docker system prune -a --volumes
   ```
-- **Housekeeping Zabbix** — Sesuaikan retensi History & Trends di menu **Administration > Housekeeping** pada panel Zabbix agar ruang penyimpanan tetap aman.
+- **Housekeeping Zabbix** - Sesuaikan retensi History & Trends di menu **Administration > Housekeeping** pada panel Zabbix agar ruang penyimpanan tetap aman.
