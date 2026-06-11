@@ -1,8 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/Prototype2_Netmon_PPL/', // <-- SESUAIKAN DENGAN NAMA REPO GITHUB LU
+  base: '/Netmon_Project_UPNVJ/', // 👈 Pastikan ada garis miring di awal dan akhir!
 })
