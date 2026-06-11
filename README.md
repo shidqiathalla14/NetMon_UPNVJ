@@ -40,20 +40,55 @@
 Sistem ini menggunakan arsitektur *microservices* yang terbagi menjadi tiga modul utama:
 
 ```text
-Netmon_Project_UPNVJ/
-├── Netmon_Dashboard/             # 1. Frontend React (Vite) - Port 5173
-│   ├── src/
-│   │   ├── components/           # Komponen UI modular
-│   │   ├── pages/                # Halaman utama (Dashboard, Traffic, Laporan)
-│   │   └── main.jsx              # Entry point React
+NETMON_PROJECT_UPNVJ/
+├── Netmon_API/                   # 1. Backend API Bridge (Node.js & Express)
+│   ├── node_modules/             # Folder dependensi server API
+│   ├── package-lock.json
+│   ├── package.json              # Daftar library backend (express, cors, mysql)
+│   └── server.js                 # Entry point & endpoint utama (Zabbix & MySQL)
 │
-├── Netmon_API/                   # 2. Backend API Bridge (Express.js) - Port 5000
-│   ├── server.js                 # Endpoint penghubung MySQL & Zabbix API
-│   └── package.json              # Dependensi backend (cors, mysql, axios)
+├── Netmon_Dashboard/             # 2. Frontend React (Vite)
+│   ├── dist/                     # Hasil build production-ready
+│   ├── node_modules/             # Folder dependensi frontend
+│   ├── src/
+│   │   ├── assets/               # Aset statis UI
+│   │   │   └── upnvj-logo.webp
+│   │   ├── components/           # Komponen UI modular & reusable
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   └── SystemAlert.jsx
+│   │   ├── hooks/                # Custom React Hooks
+│   │   │   └── useIsMobile.jsx
+│   │   ├── pages/                # Halaman antarmuka utama
+│   │   │   ├── AccessPoint.jsx
+│   │   │   ├── DaftarLaporan.jsx # Halaman Admin: Tabel tiket masuk
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── DashboardDesktop.jsx
+│   │   │   ├── DashboardMobile.jsx
+│   │   │   ├── Devices.jsx       # Halaman Inventaris & Integrasi Zabbix
+│   │   │   ├── ExtraPages.jsx
+│   │   │   ├── Guest.jsx         # Dashboard publik (tanpa login)
+│   │   │   ├── LaporGangguan.jsx # Halaman Mahasiswa: Form komplain
+│   │   │   ├── Login.jsx
+│   │   │   ├── Pengaturan.jsx
+│   │   │   └── Traffic.jsx       # Integrasi Iframe Grafana Kiosk
+│   │   ├── services/
+│   │   │   └── api.js            # Modul helper untuk call API (Fetch/Axios)
+│   │   ├── styles/
+│   │   │   └── index.css         # Styling global CSS (Light/Dark mode)
+│   │   ├── App.jsx               # Router utama aplikasi
+│   │   └── main.jsx              # Entry point React
+│   ├── .gitignore
+│   ├── eslint.config.js          # Konfigurasi linter kode
+│   ├── index.html                # Template dasar HTML
+│   ├── package-lock.json
+│   ├── package.json              # Daftar library frontend
+│   └── vite.config.js            # Konfigurasi Vite bundler
 │
 └── Netmon_Server/                # 3. Backend Infrastructure (Docker)
-    ├── grafana_data/             # Konfigurasi Grafana Viewer
-    └── docker-compose.yml        # Orkestrasi container Zabbix & Grafana
+    ├── db_data/                  # Volume persisten database Zabbix
+    ├── grafana_data/             # Volume persisten konfigurasi Grafana
+    └── docker-compose.yml        # Orkestrasi container (Zabbix, Grafana, DB)
 ```
 
 ---
